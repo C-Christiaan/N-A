@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html lang = "pl">
+	<head>
+		<meta charset = "utf-8" />
+		<title>Game of life</title>
+		<meta name = "desrtiption" content = "Simple simulation of life: 'Game of life'"/>
+		<meta name = "keywords" content = "game of life, game, life, simulation, simulation of life, html, javascript, css"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<link rel = "stylesheet" href="style.css" type = "text/css" />
+
+		<script src = "code.js"> </script>
+	</head>
+	<body>
+		<div id = "div_container">
+			<div id = "div_top">
+				<div id = "top_head">
+
+				</div>
+				<div id = "div_top_body">
+					<div id = "div_parameters">
+						Width of board [cells]: <input type="text" id="input_x_cells"></br></br>
+						Height of board [cells]: <input type="text" id="input_y_cells"></br></br>
+						Cell width [pixels]: <input type="text" id="input_cell_width"></br></br>
+		
+						<a href = "javascript:button_submit();">
+                            submit changes
+						</a>
+					</div>
+					<div id = "div_tools">
+						</br></br>
+						<a href = "javascript:button_start();" id = "button_start_stop">
+							<div id = "image_start_stop">start [S]</div>
+						</a>
+						<a href = "javascript:button_backTo1Gen();" >
+							<div id = "image_start_stop">go back to first generation</div>
+						</a>
+						<a href = "javascript:button_clear();" >
+							<div id = "image_start_stop">clear board and start from first generation</div>
+						</a>
+						<p class="p_simulation_informations" id="p_start_status">Simulation stopped</p>
+						<p class="p_simulation_informations" id="p_speed">Speed: 99999</p>
+						<p class="p_simulation_informations" id="p_generation">Generation = 1</p>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+			<div id = "div_canvas">
+				<canvas id="canv"></canvas>
+			</div>
+		</div>
+	</body>
+</html>
