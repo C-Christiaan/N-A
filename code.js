@@ -131,7 +131,7 @@ function init_simulation() {
     }
     
 }
-// ****************************************************
+// *****************************************************
 function mouseMove(evt) {
     if (mouse_pushed == true)
         pencilErase(evt);
@@ -329,8 +329,6 @@ function simulation() {
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
     drawGeneration();
 
-    let gridArray = getGridArray();
-    console.log(gridArray);
 }
 // ****************************************************
 
@@ -433,15 +431,5 @@ function drawCell(cell, color) {
     ctx.fillRect(cell.x * cell_width, cell.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
 }
 // ****************************************************
-function getGridArray() {
-    let gridArray = [];
-    for (let i = 0; i < living_cells.length; i++) {
-        let row = [];
-        for (let j = 0; j < living_cells[i].length; j++) {
-            row.push(living_cells[i][j] ? 1 : 0);
-        }
-        gridArray.push(row);
-    }
-    return gridArray;
-}
+
 
