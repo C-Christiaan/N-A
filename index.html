@@ -18,30 +18,38 @@
 				</div>
 				<div id = "div_top_body">
 					<div id = "div_parameters">
-						Width of board [cells]: <input type="text" id="input_x_cells"></br></br>
-						Height of board [cells]: <input type="text" id="input_y_cells"></br></br>
-						Cell width [pixels]: <input type="text" id="input_cell_width"></br></br>
+						Width of board [cells]: <input type="number" id="input_x_cells"></br></br>
+						Height of board [cells]: <input type="number" id="input_y_cells"></br></br>
+						Cell width [pixels]: <input type="number" id="input_cell_width"></br></br>
 		
 						<a href = "javascript:button_submit();">
                             submit changes
 						</a>
 					</div>
-					<div id = "div_tools">
+					<div id = "div_tools">	 
 						</br></br>
 						<a href = "javascript:button_start();" id = "button_start_stop">
-							<div id = "image_start_stop">start [S]</div>
+							<div id = "title_start_stop">start [S]</div>
 						</a>
 						<a href = "javascript:button_backTo1Gen();" >
-							<div id = "image_start_stop">go back to first generation</div>
+							<div id = "title_start_stop">go back to first generation [R]</div>
 						</a>
 						<a href = "javascript:button_clear();" >
-							<div id = "image_start_stop">clear board and start from first generation</div>
+							<div id = "title_start_stop">clear board and start from first generation [C]</div>
 						</a>
+
+							<label for="speedSlider">Speed:</label>
+							<input type="number" id="speedSlider" min="50" max="1000" value="125">
+							<span id="speedValue">125</span> ms
+
 						<p class="p_simulation_informations" id="p_start_status">Simulation stopped</p>
 						<p class="p_simulation_informations" id="p_speed">Speed: 99999</p>
 						<p class="p_simulation_informations" id="p_generation">Generation = 1</p>
+						
 					</div>
+					
 					<div style="clear: both;"></div>
+					
 				</div>
 			</div>
 			<div id = "div_canvas">

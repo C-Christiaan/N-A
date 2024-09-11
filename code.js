@@ -5,7 +5,7 @@ cell_y_count = 80;
 const CELL_MARGIN = 1;
 
 var interval;
-interval_timeout = 125;
+interval_timeout = 250;
 
 living_cells = [];
 first_generation = [];
@@ -26,7 +26,6 @@ window.onload = function () {
     init_canvas();
     init_simulation();
 
-
     canv.addEventListener("mousemove", mouseMove);
     canv.addEventListener("mousedown", mouseDown);
     canv.addEventListener("mouseup", mouseUp);
@@ -41,12 +40,18 @@ window.onload = function () {
         if (e.stopPropagation != undefined)
             e.stopPropagation();
     }
+
+    // Add event listener for the speed slider
+    document.getElementById("speedSlider").addEventListener("input", function () {
+        interval_timeout = parseInt(this.value);
+        document.getElementById("speedValue").innerText = interval_timeout;
+        clearInterval(interval);
+        interval = setInterval(simulation, interval_timeout);
+        document.getElementById("p_speed").innerHTML = "Speed = " + Math.floor(1000 / interval_timeout) + " generations per sec";
+    });
+
     interval = setInterval(simulation, interval_timeout);
-
-
-    document.getElementById("p_speed").innerHTML = "Speed = " + 1000 / interval_timeout + " generations per sec"
-
-    dimensionsFormChanged();
+    document.getElementById("p_speed").innerHTML = "Speed = " + 1000 / interval_timeout + " generations per sec";
 }
 // ****************************************************
 
@@ -129,7 +134,7 @@ function init_simulation() {
             buffor_cells[0][i].push(false);
         }
     }
-    
+
 }
 // *****************************************************
 function mouseMove(evt) {
@@ -171,16 +176,12 @@ function mouseUp() {
 }
 
 function keyDown(evt) {
-if (evt.key == 's') {
+    if (evt.key == 's') {
         if (document.getElementById("p_start_status").innerHTML == "Simulation started")
             button_stop();
         else if (document.getElementById("p_start_status").innerHTML == "Simulation stopped")
             button_start();
     }
-    else if (evt.key == 'q')
-        button_speedDown();
-    else if (evt.key == 'e')
-        button_speedUp();
     else if (evt.key == 'r')
         button_backTo1Gen();
     else if (evt.key == 'c')
@@ -200,7 +201,7 @@ function button_submit() {
         alert("Error: width of board must be between 5 and 250");
     else if (!(cy >= 5 && cy <= 250))
         alert("Error: height of board must be between 5 and 250");
-    else if (!(cd >= 3 && cd <= 25))
+    else if (!(cd >= 3 && cd <= 41))
         alert("Error: cell width must be between 3 and 25");
     else {
         cell_x_count = cx;
@@ -223,8 +224,7 @@ function button_start() {
         }
     }
 
-    document.getElementById("image_start_stop").src = "img/icon_stop.png";
-    document.getElementById("image_start_stop").title = "stop [S]";
+    document.getElementById("title_start_stop").innerHTML = "stop [S]";
     document.getElementById("button_start_stop").href = "javascript:button_stop();"
 
     document.getElementById("p_start_status").innerHTML = "Simulation started";
@@ -233,8 +233,7 @@ function button_start() {
 function button_stop() {
     started = false;
 
-    document.getElementById("image_start_stop").src = "img/icon_start.png";
-    document.getElementById("image_start_stop").title = "start [S]";
+    document.getElementById("title_start_stop").innerHTML = "start [S]";
     document.getElementById("button_start_stop").href = "javascript:button_start();"
 
     document.getElementById("p_start_status").innerHTML = "Simulation stopped";
@@ -288,10 +287,10 @@ function simulation() {
         for (let y = 0; y < cell_y_count; y++) {
             living_neighborhood = 0;
 
-           
+
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
-                    if (i === 0 && j === 0) continue; 
+                    if (i === 0 && j === 0) continue;
                     let nx = x + i;
                     let ny = y + j;
 
@@ -301,16 +300,16 @@ function simulation() {
                 }
             }
 
-    
+
             if (living_cells[x][y]) {
                 if (living_neighborhood < 2 || living_neighborhood > 3) {
-                    new_generation[x][y] = false; 
+                    new_generation[x][y] = false;
                 } else {
-                    new_generation[x][y] = true; 
+                    new_generation[x][y] = true;
                 }
             } else {
                 if (living_neighborhood === 3) {
-                    new_generation[x][y] = true; 
+                    new_generation[x][y] = true;
                 } else {
                     new_generation[x][y] = false;
                 }
@@ -318,7 +317,7 @@ function simulation() {
         }
     }
 
- 
+
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_y_count; j++) {
             living_cells[i][j] = new_generation[i][j];
@@ -413,6 +412,8 @@ function killCells(cells) {
     for (i = 0; i < cells.length; i++)
         living_cells[cells[i].x][cells[i].y] = false;
 }
+
+
 
 function createAndDrawCells(cells) {
     createCells(cells);
