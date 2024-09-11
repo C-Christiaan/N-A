@@ -186,7 +186,7 @@ if (evt.key == 's') {
     else if (evt.key == 'c')
         button_clear();
 }
-// ****************************************************
+// ***************************peepeepoopoo********************
 function dimensionsFormChanged() {
     document.getElementById("a_w").innerHTML = parseInt(document.getElementById("input_x_cells").value * parseInt(document.getElementById("input_cell_width").value));
     document.getElementById("a_h").innerHTML = parseInt(document.getElementById("input_y_cells").value * parseInt(document.getElementById("input_cell_width").value));
