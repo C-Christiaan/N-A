@@ -221,7 +221,6 @@ function button_submit() {
         alert("Error: cell width must be between 3 and 25");
     else {
         cell_x_count = cx;
-        cell_y_count = cy;          	q
         cell_width = cd;
         button_clear();
 
