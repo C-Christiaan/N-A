@@ -19,7 +19,6 @@ last_mouse_cell_position = null;
 started = false;
 generation = 1;
 
-const borderSize = 10;
 
 window.onload = function () {
     if (cell_x_count != this.parseInt(cell_x_count))
@@ -124,6 +123,7 @@ function init_simulation() {
     buffor_cells = [];
     buffor_cells_pointer = 0;
     terrain_cells = [];  // Initialize the terrain_cells array
+    lava_cells = [];
 
     buffor_cells.push([]);
     for (let i = 0; i < cell_x_count; i++) {
@@ -131,15 +131,19 @@ function init_simulation() {
         new_generation.push([]);
         buffor_cells[0].push([]);
         terrain_cells.push([]);  // Initialize each row for terrain_cells
+        lava_cells.push([]);  // Initialize each row for terrain_cells
 
         for (let j = 0; j < cell_x_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
             terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
+            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
+            lava_cells[i].push(false);  // Initialize each cell in terrain_cells
         }
     }
     placeTerrainCells(); // Call this to place terrain cells
+    placeLavaCells();
 }
 
 function placeTerrainCells() {
@@ -150,6 +154,19 @@ function placeTerrainCells() {
             if (Math.random() < terrain_density) {
                 terrain_cells[i][j] = true;
                 drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
+            }
+        }
+    }
+}
+
+function placeLavaCells() {
+    const lava_density = 0.005; // Adjust the density of terrain cells as needed
+
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_x_count; j++) {
+            if (Math.random() < lava_density) {
+                lava_cells[i][j] = true;
+                drawCell({ x: i, y: j }, "red"); // Draw terrain cells with a different color
             }
         }
     }
@@ -281,6 +298,8 @@ function drawGeneration() {
                 drawCell({ x: i, y: j }, "green"); // Draw terrain cells in green
             } else if (living_cells[i][j]) {
                 drawCell({ x: i, y: j }, "white"); // Draw living cells in white
+            } else if (lava_cells[i][j]) {
+                drawCell({ x: i, y: j }, "red"); // Draw lava cells in white
             } else {
                 drawCell({ x: i, y: j }, "black"); // Draw dead cells in black
             }
@@ -295,11 +314,13 @@ function simulation() {
 
     let living_neighborhood = 0;
     let terrain_neighborhood = 0;  // Add this variable
+    let lava_neighborhood = 0; // Add this variable
 
     for (let x = 0; x < cell_x_count; x++) {
         for (let y = 0; y < cell_x_count; y++) {
             living_neighborhood = 0;
             terrain_neighborhood = 0;  // Reset for each cell
+            lava_neighborhood = 0; // Reset for each cell
 
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
@@ -310,11 +331,19 @@ function simulation() {
                     if (nx >= 0 && nx < cell_x_count && ny >= 0 && ny < cell_x_count) {
                         if (living_cells[nx][ny]) living_neighborhood++;
                         if (terrain_cells[nx][ny]) terrain_neighborhood++;  // Check terrain cells
+                        if (lava_cells[nx][ny]) lava_neighborhood++; // Check lava cells
                     }
                 }
             }
-
+            //checks if there are 4 neigbour cells to survive the lava
             if (living_cells[x][y]) {
+                if (lava_neighborhood > 0) {
+                    if (lava_neighborhood == 4) {
+                        new_generation = true
+                    } else{
+                        new_generation[x][y] = false;
+                    }    
+                }
                 if (living_neighborhood < 2 || living_neighborhood > 3) {
                     new_generation[x][y] = false;
                 } else {
