@@ -10,7 +10,7 @@
     <script src="code.js"></script>
 </head>
 <body>
-    <nav>
+
             <label for="input_x_cells">Side length of board [cells]:</label>
             <input type="number" id="input_x_cells"></br></br>
             <label for="input_cell_width">Cell width [pixels]:</label>
@@ -28,7 +28,6 @@
             <a href="javascript:button_clear();">
                 <div id="title_start_stop">Clear board and start from first generation [C]</div>
             </a>
-    </nav>
     <div id="div_container">
         <div id="div_canvas">
             <canvas id="canv"></canvas>
@@ -37,6 +36,8 @@
             <p class="p_simulation_informations" id="p_start_status">Simulation stopped</p>
             <p class="p_simulation_informations" id="p_speed">Speed: 99999</p>
             <p class="p_simulation_informations" id="p_generation">Generation = 1</p>
+            <p class="p_simulation_informations" id="p_living_cells">Living Cells: 0</p>
+            <p class="p_simulation_informations" id="p_terrain_cells">Terrain Cells: 0</p>
         </div>
     </div>
 </body>
