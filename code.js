@@ -307,10 +307,12 @@ function simulation() {
     if (started == false) return;
 
     let living_neighborhood = 0;
+    let terrain_neighborhood = 0;  // Add this variable
+
     for (let x = 0; x < cell_x_count; x++) {
         for (let y = 0; y < cell_y_count; y++) {
             living_neighborhood = 0;
-
+            terrain_neighborhood = 0;  // Reset for each cell
 
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
@@ -320,10 +322,10 @@ function simulation() {
 
                     if (nx >= 0 && nx < cell_x_count && ny >= 0 && ny < cell_y_count) {
                         if (living_cells[nx][ny]) living_neighborhood++;
+                        if (terrain_cells[nx][ny]) terrain_neighborhood++;  // Check terrain cells
                     }
                 }
             }
-
 
             if (living_cells[x][y]) {
                 if (living_neighborhood < 2 || living_neighborhood > 3) {
@@ -332,7 +334,7 @@ function simulation() {
                     new_generation[x][y] = true;
                 }
             } else {
-                if (living_neighborhood === 3) {
+                if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {  // If terrain is nearby, it creates life
                     new_generation[x][y] = true;
                 } else {
                     new_generation[x][y] = false;
@@ -341,7 +343,7 @@ function simulation() {
         }
     }
 
-
+    // Update the living cells for the next generation
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_y_count; j++) {
             living_cells[i][j] = new_generation[i][j];
@@ -351,8 +353,8 @@ function simulation() {
     generation++;
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
     drawGeneration();
-
 }
+
 // ****************************************************
 
 function makeCellsLine(prev_cell, cell) {
