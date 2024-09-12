@@ -214,16 +214,10 @@ function dimensionsFormChanged() {
 function button_submit() {
     cx = parseInt(document.getElementById("input_x_cells").value);
     cd = parseInt(document.getElementById("input_cell_width").value);
-    if (!(cx >= 5 && cx <= 250))
-        alert("Error: length of board must be between 5 and 250");
-    else if (!(cd >= 3 && cd <= 41))
-        alert("Error: cell width must be between 3 and 25");
-    else {
+
         cell_x_count = cx;
         cell_width = cd;
         button_clear();
-
-    }
 }
 
 
