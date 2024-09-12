@@ -19,7 +19,6 @@ last_mouse_cell_position = null;
 started = false;
 generation = 1;
 
-const borderSize = 10;
 
 window.onload = function () {
     if (cell_x_count != this.parseInt(cell_x_count))
@@ -125,6 +124,7 @@ function init_simulation() {
     buffor_cells = [];
     buffor_cells_pointer = 0;
     terrain_cells = [];  // Initialize the terrain_cells array
+    lava_cells = [];
 
     buffor_cells.push([]);
     for (let i = 0; i < cell_x_count; i++) {
@@ -132,15 +132,19 @@ function init_simulation() {
         new_generation.push([]);
         buffor_cells[0].push([]);
         terrain_cells.push([]);  // Initialize each row for terrain_cells
+        lava_cells.push([]);  // Initialize each row for terrain_cells
 
         for (let j = 0; j < cell_x_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
             terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
+            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
+            lava_cells[i].push(false);  // Initialize each cell in terrain_cells
         }
     }
     placeTerrainCells(); // Call this to place terrain cells
+    placeLavaCells();
 }
 
 function placeTerrainCells() {
@@ -151,6 +155,19 @@ function placeTerrainCells() {
             if (Math.random() < terrain_density) {
                 terrain_cells[i][j] = true;
                 drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
+            }
+        }
+    }
+}
+
+function placeLavaCells() {
+    const lava_density = 0.005; // Adjust the density of terrain cells as needed
+
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_x_count; j++) {
+            if (Math.random() < lava_density) {
+                lava_cells[i][j] = true;
+                drawCell({ x: i, y: j }, "red"); // Draw terrain cells with a different color
             }
         }
     }
