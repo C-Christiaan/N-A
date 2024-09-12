@@ -148,7 +148,9 @@ function init_simulation() {
 }
 
 function placeTerrainCells() {
-    const terrain_density = 0.005; // Adjust the density of terrain cells as needed
+    const terrain_density_input = parseInt(document.getElementById("input_terrain_density").value);
+    const terrain_density = terrain_density_input / 1000;  // Scale to decimal
+
 
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_x_count; j++) {
@@ -161,7 +163,9 @@ function placeTerrainCells() {
 }
 
 function placeLavaCells() {
-    const lava_density = 0.005; // Adjust the density of terrain cells as needed
+    const lava_density_input = parseInt(document.getElementById("input_lava_density").value);
+    const lava_density = lava_density_input / 1000;  // Scale to decimal
+
 
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_x_count; j++) {
@@ -353,7 +357,7 @@ function simulation() {
                 } else {
                     new_generation[x][y] = true;
                 }
-            } 
+            }
             // Logic for empty cells
             else {
                 if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {  // If terrain is nearby, it creates life

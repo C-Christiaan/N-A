@@ -10,24 +10,40 @@
     <script src="code.js"></script>
 </head>
 <body>
-
+    <div id="controls-container">
+        <div class="control-group">
             <label for="input_x_cells">Side length of board [cells]:</label>
-            <input type="number" id="input_x_cells"></br></br>
+            <input type="number" id="input_x_cells" value="80">
+        </div>
+        <div class="control-group">
             <label for="input_cell_width">Cell width [pixels]:</label>
-            <input type="number" id="input_cell_width"></br></br>
+            <input type="number" id="input_cell_width" value="10">
+        </div>
+        <div class="control-group">
             <label for="speedSlider">Speed:</label>
             <input type="number" id="speedSlider" min="50" max="1000" value="125">
             <span id="speedValue">125</span> ms
-            <a href="javascript:button_submit();">Submit changes</a>
-            <a href="javascript:button_start();" id="button_start_stop">
-                <div id="title_start_stop">Start [S]</div>
-            </a>
-            <a href="javascript:button_backTo1Gen();">
-                <div id="title_start_stop">Go back to first generation [R]</div>
-            </a>
-            <a href="javascript:button_clear();">
-                <div id="title_start_stop">Clear board and start from first generation [C]</div>
-            </a>
+        </div>
+        <div class="control-group">
+            <label for="input_terrain_density">Terrain Density:</label>
+            <input type="number" id="input_terrain_density" min="1" max="100" value="5">
+        </div>
+        <div class="control-group">
+            <label for="input_lava_density">lava Density:</label>
+            <input type="number" id="input_lava_density" min="1" max="100" value="5">
+        </div>
+        
+    </div>
+    <a href="javascript:button_submit();">Submit changes</a>
+    <a href="javascript:button_start();" id="button_start_stop">
+        <div id="title_start_stop">Start [S]</div>
+    </a>
+    <a href="javascript:button_backTo1Gen();">
+        <div id="title_start_stop">Go back to first generation [R]</div>
+    </a>
+    <a href="javascript:button_clear();">
+        <div id="title_start_stop">Clear board and start from first generation [C]</div>
+    </a>
     <div id="div_container">
         <div id="div_canvas">
             <canvas id="canv"></canvas>
