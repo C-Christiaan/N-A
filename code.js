@@ -42,7 +42,6 @@ window.onload = function () {
             e.stopPropagation();
     }
 
-    // Add event listener for the speed slider
     document.getElementById("speedSlider").addEventListener("input", function () {
         interval_timeout = parseInt(this.value);
         document.getElementById("speedValue").innerText = interval_timeout;
@@ -347,6 +346,7 @@ function simulation() {
     generation++;
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
     drawGeneration();
+    updateCellCounts();
 }
 
 // ****************************************************
@@ -450,5 +450,20 @@ function killAndDrawCells(cells) {
 function drawCell(cell, color) {
     ctx.fillStyle = color;
     ctx.fillRect(cell.x * cell_width, cell.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
+}
+
+function updateCellCounts() {
+    let livingCellCount = 0;
+    let terrainCellCount = 0;
+
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_x_count; j++) {
+            if (living_cells[i][j]) livingCellCount++;
+            if (terrain_cells[i][j]) terrainCellCount++;
+        }
+    }
+
+    document.getElementById("p_living_cells").innerText = "Living Cells: " + livingCellCount;
+    document.getElementById("p_terrain_cells").innerText = "Terrain Cells: " + terrainCellCount;
 }
 // ****************************************************
