@@ -70,10 +70,8 @@ function whichCell(x, y, canBeOnGridcell) {
 }
 
 function pencilErase(evt) {
-
     x = parseInt(evt.offsetX);
     y = parseInt(evt.offsetY);
-
 
     if (last_mouse_cell_position != null)
         cell = whichCell(x, y, true);
@@ -82,23 +80,25 @@ function pencilErase(evt) {
 
     if (cell == null && last_mouse_cell_position == null) {
         return;
-    }
-    else if (cell != null) {
+    } else if (cell != null) {
+        // Check if the cell is a terrain cell
+        if (terrain_cells[cell.x][cell.y]) {
+            return; // Do nothing if it's a terrain cell
+        }
+
         if (last_mouse_cell_position != null) {
-            if (evt.buttons === 1) {
-                cells = makeCellsLine(last_mouse_cell_position, cell, "white");
+            var cells = makeCellsLine(last_mouse_cell_position, cell);
+            if (evt.buttons == 1) {
                 createAndDrawCells(cells);
-            }
-            if (evt.buttons === 2) {
-                cells = makeCellsLine(last_mouse_cell_position, cell, "black");
+            } else if (evt.buttons == 2) {
                 killAndDrawCells(cells);
             }
-        }
-        else {
-            if (evt.buttons === 1)
+        } else {
+            if (evt.buttons == 1) {
                 createAndDrawCells([cell]);
-            if (evt.buttons === 2)
+            } else if (evt.buttons == 2) {
                 killAndDrawCells([cell]);
+            }
         }
     }
     last_mouse_cell_position = cell;
@@ -430,15 +430,22 @@ function killCells(cells) {
 
 
 function createAndDrawCells(cells) {
-    createCells(cells);
-    for (i = 0; i < cells.length; i++)
-        drawCell(cells[i], "white");
+    for (i = 0; i < cells.length; i++) {
+        if (!terrain_cells[cells[i].x][cells[i].y]) { // Check if the cell is not a terrain cell
+            living_cells[cells[i].x][cells[i].y] = true;
+            drawCell(cells[i], "white");
+        }
+    }
 }
 
 function killAndDrawCells(cells) {
-    killCells(cells);
-    for (i = 0; i < cells.length; i++)
-        drawCell(cells[i], "black");
+    for (i = 0; i < cells.length; i++) {
+        if (!terrain_cells[cells[i].x][cells[i].y]) { // Check if the cell is not a terrain cell
+            living_cells[cells[i].x][cells[i].y] = false;
+            drawCell(cells[i], "black");
+        }
+    }
+    updateCellCounts(); // Update counts after drawing cells
 }
 
 function drawCell(cell, color) {
