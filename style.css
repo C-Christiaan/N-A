@@ -45,6 +45,7 @@ body {
 
 #div_canvas {
     margin-right: 20px;
+    border: 1px solid lightgray;
 }
 
 #sidebar {
