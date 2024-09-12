@@ -1,7 +1,7 @@
 
 cell_width = 10;
 cell_x_count = 80;
-cell_y_count = 80;
+
 const CELL_MARGIN = 1;
 
 var interval;
@@ -19,9 +19,11 @@ last_mouse_cell_position = null;
 started = false;
 generation = 1;
 
+const borderSize = 10;
+
 window.onload = function () {
-    if (cell_x_count != this.parseInt(cell_x_count) || cell_y_count != this.parseInt(cell_y_count))
-        throw 'cell_x_count or cell_y_count is not integer !!!';
+    if (cell_x_count != this.parseInt(cell_x_count))
+        throw 'side length is not integer !!!';
 
     init_canvas();
     init_simulation();
@@ -31,7 +33,6 @@ window.onload = function () {
     canv.addEventListener("mouseup", mouseUp);
     document.addEventListener("keydown", keyDown);
     document.getElementById("input_x_cells").addEventListener("change", dimensionsFormChanged);
-    document.getElementById("input_y_cells").addEventListener("change", dimensionsFormChanged);
     document.getElementById("input_cell_width").addEventListener("change", dimensionsFormChanged);
     canv.oncontextmenu = function (e) {
         var evt = new Object({ keyCode: 93 });
@@ -107,14 +108,14 @@ function pencilErase(evt) {
 function init_canvas() {
     canv = document.getElementById("canv");
     canv.width = cell_x_count * cell_width;
-    canv.height = cell_y_count * cell_width;
+    canv.height = cell_x_count * cell_width;
 
     ctx = canv.getContext("2d");
     ctx.fillStyle = "#404040";
     ctx.fillRect(0, 0, canv.width, canv.height);
     ctx.fillStyle = "black";
     for (i = 0; i < cell_x_count; i++)
-        for (j = 0; j < cell_y_count; j++)
+        for (j = 0; j < cell_x_count; j++)
             ctx.fillRect(i * cell_width, j * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
 }
 
@@ -123,19 +124,38 @@ function init_simulation() {
     new_generation = [];
     buffor_cells = [];
     buffor_cells_pointer = 0;
+    terrain_cells = [];  // Initialize the terrain_cells array
+
     buffor_cells.push([]);
-    for (i = 0; i < cell_x_count; i++) {
+    for (let i = 0; i < cell_x_count; i++) {
         living_cells.push([]);
         new_generation.push([]);
         buffor_cells[0].push([]);
-        for (j = 0; j < cell_y_count; j++) {
+        terrain_cells.push([]);  // Initialize each row for terrain_cells
+
+        for (let j = 0; j < cell_x_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
+            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
         }
     }
-
+    placeTerrainCells(); // Call this to place terrain cells
 }
+
+function placeTerrainCells() {
+    const terrain_density = 0.005; // Adjust the density of terrain cells as needed
+
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_x_count; j++) {
+            if (Math.random() < terrain_density) {
+                terrain_cells[i][j] = true;
+                drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
+            }
+        }
+    }
+}
+
 // *****************************************************
 function mouseMove(evt) {
     if (mouse_pushed == true)
@@ -187,25 +207,20 @@ function keyDown(evt) {
     else if (evt.key == 'c')
         button_clear();
 }
-// *****************************************************
+// ****************************************************
 function dimensionsFormChanged() {
     document.getElementById("a_w").innerHTML = parseInt(document.getElementById("input_x_cells").value * parseInt(document.getElementById("input_cell_width").value));
-    document.getElementById("a_h").innerHTML = parseInt(document.getElementById("input_y_cells").value * parseInt(document.getElementById("input_cell_width").value));
 }
 
 function button_submit() {
     cx = parseInt(document.getElementById("input_x_cells").value);
-    cy = parseInt(document.getElementById("input_y_cells").value);
     cd = parseInt(document.getElementById("input_cell_width").value);
     if (!(cx >= 5 && cx <= 250))
-        alert("Error: width of board must be between 5 and 250");
-    else if (!(cy >= 5 && cy <= 250))
-        alert("Error: height of board must be between 5 and 250");
+        alert("Error: length of board must be between 5 and 250");
     else if (!(cd >= 3 && cd <= 41))
         alert("Error: cell width must be between 3 and 25");
     else {
         cell_x_count = cx;
-        cell_y_count = cy;
         cell_width = cd;
         button_clear();
 
@@ -263,30 +278,35 @@ function button_clear() {
     init_simulation();
 }
 
-
-// ****************************************************
 function drawGeneration() {
     ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canv.width, canv.height);
+
     for (i = 0; i < cell_x_count; i++) {
-        for (j = 0; j < cell_y_count; j++) {
-            ctx.fillRect(i * cell_width, j * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
+        for (j = 0; j < cell_x_count; j++) {
+            if (terrain_cells[i][j]) {
+                drawCell({ x: i, y: j }, "green"); // Draw terrain cells in green
+            } else if (living_cells[i][j]) {
+                drawCell({ x: i, y: j }, "white"); // Draw living cells in white
+            } else {
+                drawCell({ x: i, y: j }, "black"); // Draw dead cells in black
+            }
         }
     }
-
-    for (i = 0; i < living_cells.length; i++)
-        for (j = 0; j < living_cells.length; j++)
-            if (living_cells[i][j] == true)
-                drawCell({ x: i, y: j }, "white");
 }
+// ****************************************************ont
+
 
 function simulation() {
     if (started == false) return;
 
     let living_neighborhood = 0;
-    for (let x = 0; x < cell_x_count; x++) {
-        for (let y = 0; y < cell_y_count; y++) {
-            living_neighborhood = 0;
+    let terrain_neighborhood = 0;  // Add this variable
 
+    for (let x = 0; x < cell_x_count; x++) {
+        for (let y = 0; y < cell_x_count; y++) {
+            living_neighborhood = 0;
+            terrain_neighborhood = 0;  // Reset for each cell
 
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
@@ -294,12 +314,12 @@ function simulation() {
                     let nx = x + i;
                     let ny = y + j;
 
-                    if (nx >= 0 && nx < cell_x_count && ny >= 0 && ny < cell_y_count) {
+                    if (nx >= 0 && nx < cell_x_count && ny >= 0 && ny < cell_x_count) {
                         if (living_cells[nx][ny]) living_neighborhood++;
+                        if (terrain_cells[nx][ny]) terrain_neighborhood++;  // Check terrain cells
                     }
                 }
             }
-
 
             if (living_cells[x][y]) {
                 if (living_neighborhood < 2 || living_neighborhood > 3) {
@@ -308,7 +328,7 @@ function simulation() {
                     new_generation[x][y] = true;
                 }
             } else {
-                if (living_neighborhood === 3) {
+                if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {  // If terrain is nearby, it creates life
                     new_generation[x][y] = true;
                 } else {
                     new_generation[x][y] = false;
@@ -317,9 +337,9 @@ function simulation() {
         }
     }
 
-
+    // Update the living cells for the next generation
     for (let i = 0; i < cell_x_count; i++) {
-        for (let j = 0; j < cell_y_count; j++) {
+        for (let j = 0; j < cell_x_count; j++) {
             living_cells[i][j] = new_generation[i][j];
         }
     }
@@ -327,8 +347,8 @@ function simulation() {
     generation++;
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
     drawGeneration();
-
 }
+
 // ****************************************************
 
 function makeCellsLine(prev_cell, cell) {
@@ -432,5 +452,3 @@ function drawCell(cell, color) {
     ctx.fillRect(cell.x * cell_width, cell.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
 }
 // ****************************************************
-
-
