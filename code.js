@@ -133,7 +133,7 @@ function init_simulation() {
         buffor_cells[0].push([]);
         terrain_cells.push([]);  // Initialize each row for terrain_cells
 
-        for (let j = 0; j < cell_y_count; j++) {
+        for (let j = 0; j < cell_x_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
@@ -147,7 +147,7 @@ function placeTerrainCells() {
     const terrain_density = 0.005; // Adjust the density of terrain cells as needed
 
     for (let i = 0; i < cell_x_count; i++) {
-        for (let j = 0; j < cell_y_count; j++) {
+        for (let j = 0; j < cell_x_count; j++) {
             if (Math.random() < terrain_density) {
                 terrain_cells[i][j] = true;
                 drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
@@ -283,7 +283,7 @@ function drawGeneration() {
     ctx.fillRect(0, 0, canv.width, canv.height);
 
     for (i = 0; i < cell_x_count; i++) {
-        for (j = 0; j < cell_y_count; j++) {
+        for (j = 0; j < cell_x_count; j++) {
             if (terrain_cells[i][j]) {
                 drawCell({ x: i, y: j }, "green"); // Draw terrain cells in green
             } else if (living_cells[i][j]) {
