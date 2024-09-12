@@ -41,6 +41,7 @@ window.onload = function () {
             e.stopPropagation();
     }
 
+    // Add event listener for the speed slider
     document.getElementById("speedSlider").addEventListener("input", function () {
         interval_timeout = parseInt(this.value);
         document.getElementById("speedValue").innerText = interval_timeout;
@@ -69,8 +70,10 @@ function whichCell(x, y, canBeOnGridcell) {
 }
 
 function pencilErase(evt) {
+
     x = parseInt(evt.offsetX);
     y = parseInt(evt.offsetY);
+
 
     if (last_mouse_cell_position != null)
         cell = whichCell(x, y, true);
@@ -79,25 +82,23 @@ function pencilErase(evt) {
 
     if (cell == null && last_mouse_cell_position == null) {
         return;
-    } else if (cell != null) {
-        // Check if the cell is a terrain cell
-        if (terrain_cells[cell.x][cell.y]) {
-            return; // Do nothing if it's a terrain cell
-        }
-
+    }
+    else if (cell != null) {
         if (last_mouse_cell_position != null) {
-            var cells = makeCellsLine(last_mouse_cell_position, cell);
-            if (evt.buttons == 1) {
+            if (evt.buttons === 1) {
+                cells = makeCellsLine(last_mouse_cell_position, cell, "white");
                 createAndDrawCells(cells);
-            } else if (evt.buttons == 2) {
+            }
+            if (evt.buttons === 2) {
+                cells = makeCellsLine(last_mouse_cell_position, cell, "black");
                 killAndDrawCells(cells);
             }
-        } else {
-            if (evt.buttons == 1) {
+        }
+        else {
+            if (evt.buttons === 1)
                 createAndDrawCells([cell]);
-            } else if (evt.buttons == 2) {
+            if (evt.buttons === 2)
                 killAndDrawCells([cell]);
-            }
         }
     }
     last_mouse_cell_position = cell;
@@ -231,10 +232,16 @@ function dimensionsFormChanged() {
 function button_submit() {
     cx = parseInt(document.getElementById("input_x_cells").value);
     cd = parseInt(document.getElementById("input_cell_width").value);
-
+    if (!(cx >= 5 && cx <= 250))
+        alert("Error: length of board must be between 5 and 250");
+    else if (!(cd >= 3 && cd <= 41))
+        alert("Error: cell width must be between 3 and 25");
+    else {
         cell_x_count = cx;
         cell_width = cd;
         button_clear();
+
+    }
 }
 
 
@@ -335,21 +342,20 @@ function simulation() {
                     }
                 }
             }
-            //checks if there are 4 neigbour cells to survive the lava
+
+            // Logic for living cells
             if (living_cells[x][y]) {
                 if (lava_neighborhood > 0) {
-                    if (lava_neighborhood == 4) {
-                        new_generation = true
-                    } else{
-                        new_generation[x][y] = false;
-                    }    
-                }
-                if (living_neighborhood < 2 || living_neighborhood > 3) {
+                    // Living cells die if there is lava nearby
+                    new_generation[x][y] = false;
+                } else if (living_neighborhood < 2 || living_neighborhood > 3) {
                     new_generation[x][y] = false;
                 } else {
                     new_generation[x][y] = true;
                 }
-            } else {
+            } 
+            // Logic for empty cells
+            else {
                 if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {  // If terrain is nearby, it creates life
                     new_generation[x][y] = true;
                 } else {
@@ -369,8 +375,8 @@ function simulation() {
     generation++;
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
     drawGeneration();
-    updateCellCounts();
 }
+
 
 // ****************************************************
 
@@ -459,41 +465,19 @@ function killCells(cells) {
 
 
 function createAndDrawCells(cells) {
-    for (i = 0; i < cells.length; i++) {
-        if (!terrain_cells[cells[i].x][cells[i].y]) { // Check if the cell is not a terrain cell
-            living_cells[cells[i].x][cells[i].y] = true;
-            drawCell(cells[i], "white");
-        }
-    }
+    createCells(cells);
+    for (i = 0; i < cells.length; i++)
+        drawCell(cells[i], "white");
 }
 
 function killAndDrawCells(cells) {
-    for (i = 0; i < cells.length; i++) {
-        if (!terrain_cells[cells[i].x][cells[i].y]) { // Check if the cell is not a terrain cell
-            living_cells[cells[i].x][cells[i].y] = false;
-            drawCell(cells[i], "black");
-        }
-    }
-    updateCellCounts(); // Update counts after drawing cells
+    killCells(cells);
+    for (i = 0; i < cells.length; i++)
+        drawCell(cells[i], "black");
 }
 
 function drawCell(cell, color) {
     ctx.fillStyle = color;
     ctx.fillRect(cell.x * cell_width, cell.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
-}
-
-function updateCellCounts() {
-    let livingCellCount = 0;
-    let terrainCellCount = 0;
-
-    for (let i = 0; i < cell_x_count; i++) {
-        for (let j = 0; j < cell_x_count; j++) {
-            if (living_cells[i][j]) livingCellCount++;
-            if (terrain_cells[i][j]) terrainCellCount++;
-        }
-    }
-
-    document.getElementById("p_living_cells").innerText = "Living Cells: " + livingCellCount;
-    document.getElementById("p_terrain_cells").innerText = "Terrain Cells: " + terrainCellCount;
 }
 // ****************************************************
