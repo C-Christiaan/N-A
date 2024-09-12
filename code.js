@@ -19,6 +19,8 @@ last_mouse_cell_position = null;
 started = false;
 generation = 1;
 
+const borderSize = 10;
+
 window.onload = function () {
     if (cell_x_count != this.parseInt(cell_x_count) || cell_y_count != this.parseInt(cell_y_count))
         throw 'cell_x_count or cell_y_count is not integer !!!';
@@ -123,19 +125,38 @@ function init_simulation() {
     new_generation = [];
     buffor_cells = [];
     buffor_cells_pointer = 0;
+    terrain_cells = [];  // Initialize the terrain_cells array
+
     buffor_cells.push([]);
-    for (i = 0; i < cell_x_count; i++) {
+    for (let i = 0; i < cell_x_count; i++) {
         living_cells.push([]);
         new_generation.push([]);
         buffor_cells[0].push([]);
-        for (j = 0; j < cell_y_count; j++) {
+        terrain_cells.push([]);  // Initialize each row for terrain_cells
+
+        for (let j = 0; j < cell_y_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
+            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
         }
     }
-
+    placeTerrainCells(); // Call this to place terrain cells
 }
+
+function placeTerrainCells() {
+    const terrain_density = 0.005; // Adjust the density of terrain cells as needed
+
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_y_count; j++) {
+            if (Math.random() < terrain_density) {
+                terrain_cells[i][j] = true;
+                drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
+            }
+        }
+    }
+}
+
 // *****************************************************
 function mouseMove(evt) {
     if (mouse_pushed == true)
@@ -263,21 +284,24 @@ function button_clear() {
     init_simulation();
 }
 
-
-// ****************************************************
 function drawGeneration() {
     ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canv.width, canv.height);
+
     for (i = 0; i < cell_x_count; i++) {
         for (j = 0; j < cell_y_count; j++) {
-            ctx.fillRect(i * cell_width, j * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
+            if (terrain_cells[i][j]) {
+                drawCell({ x: i, y: j }, "green"); // Draw terrain cells in green
+            } else if (living_cells[i][j]) {
+                drawCell({ x: i, y: j }, "white"); // Draw living cells in white
+            } else {
+                drawCell({ x: i, y: j }, "black"); // Draw dead cells in black
+            }
         }
     }
-
-    for (i = 0; i < living_cells.length; i++)
-        for (j = 0; j < living_cells.length; j++)
-            if (living_cells[i][j] == true)
-                drawCell({ x: i, y: j }, "white");
 }
+// ****************************************************ont
+
 
 function simulation() {
     if (started == false) return;
