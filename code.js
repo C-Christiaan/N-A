@@ -43,7 +43,6 @@ window.onload = function () {
             e.stopPropagation();
     }
 
-    // Add event listener for the speed slider
     document.getElementById("speedSlider").addEventListener("input", function () {
         interval_timeout = parseInt(this.value);
         document.getElementById("speedValue").innerText = interval_timeout;
@@ -84,18 +83,22 @@ function pencilErase(evt) {
     else if (cell != null) {
         if (last_mouse_cell_position != null) {
             if (evt.buttons === 1) {
-                cells = makeCellsLine(last_mouse_cell_position, cell, "white");
+                cells = makeCellsLine(last_mouse_cell_position, cell);
+                // Check if cells can be created and not on terrain or lava cells
+                cells = cells.filter(c => !living_cells[c.x][c.y] && !terrain_cells[c.x][c.y] && !lava_cells[c.x][c.y]);
                 createAndDrawCells(cells);
             }
             if (evt.buttons === 2) {
-                cells = makeCellsLine(last_mouse_cell_position, cell, "black");
+                cells = makeCellsLine(last_mouse_cell_position, cell);
+                // Check if cells can be erased and not on terrain or lava cells
+                cells = cells.filter(c => living_cells[c.x][c.y] && !terrain_cells[c.x][c.y] && !lava_cells[c.x][c.y]);
                 killAndDrawCells(cells);
             }
         }
         else {
-            if (evt.buttons === 1)
+            if (evt.buttons === 1 && !living_cells[cell.x][cell.y] && !terrain_cells[cell.x][cell.y] && !lava_cells[cell.x][cell.y])
                 createAndDrawCells([cell]);
-            if (evt.buttons === 2)
+            if (evt.buttons === 2 && living_cells[cell.x][cell.y] && !terrain_cells[cell.x][cell.y] && !lava_cells[cell.x][cell.y])
                 killAndDrawCells([cell]);
         }
     }
@@ -111,12 +114,11 @@ function init_canvas() {
     ctx.fillStyle = "#404040";
     ctx.fillRect(0, 0, canv.width, canv.height);
 
-    // Draw grid lines initially
     drawGrid();
 }
 
 function drawGrid() {
-    ctx.strokeStyle = "#808080"; // Light gray color for grid lines
+    ctx.strokeStyle = "#808080";
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= cell_x_count; i++) {
@@ -283,7 +285,6 @@ function button_start() {
 
     document.getElementById("p_start_status").innerHTML = "Simulation started";
 
-    // Redraw the canvas without the grid
     drawGeneration();
 }
 
@@ -319,7 +320,7 @@ function button_clear() {
     init_simulation();
 }
 function drawGrid() {
-    ctx.strokeStyle = "#808080"; // Light gray color for grid lines
+    ctx.strokeStyle = "#808080"; 
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= cell_x_count; i++) {
@@ -355,7 +356,7 @@ function drawGeneration() {
         }
     }
 
-    // Draw grid lines if the simulation is not started
+
     if (!started) {
         drawGrid();
     }
@@ -365,8 +366,8 @@ function simulation() {
     if (started == false) return;
 
     let living_neighborhood = 0;
-    let terrain_neighborhood = 0;  // Add this variable
-    let lava_neighborhood = 0; // Add this variable
+    let terrain_neighborhood = 0; 
+    let lava_neighborhood = 0; 
     living_cells_count = 0;
 
     for (let x = 0; x < cell_x_count; x++) {
@@ -383,17 +384,15 @@ function simulation() {
 
                     if (nx >= 0 && nx < cell_x_count && ny >= 0 && ny < cell_x_count) {
                         if (living_cells[nx][ny]) living_neighborhood++;
-                        if (terrain_cells[nx][ny]) terrain_neighborhood++;  // Check terrain cells
-                        if (lava_cells[nx][ny]) lava_neighborhood++; // Check lava cells
+                        if (terrain_cells[nx][ny]) terrain_neighborhood++; 
+                        if (lava_cells[nx][ny]) lava_neighborhood++;
                     }
                 }
             }
 
-            // Logic for living cells
             if (living_cells[x][y]) {
                 living_cells_count++;
                 if (lava_neighborhood > 0) {
-                    // Living cells die if there is lava nearby
                     new_generation[x][y] = false;
                 } else if (living_neighborhood < 2 || living_neighborhood > 3) {
                     new_generation[x][y] = false;
@@ -401,9 +400,8 @@ function simulation() {
                     new_generation[x][y] = true;
                 }
             }
-            // Logic for empty cells
             else {
-                if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {  // If terrain is nearby, it creates life
+                if (living_neighborhood === 3 || (terrain_neighborhood > 0 && living_neighborhood > 0)) {   
                     new_generation[x][y] = true;
                 } else {
                     new_generation[x][y] = false;
@@ -412,7 +410,6 @@ function simulation() {
         }
     }
 
-    // Update the living cells for the next generation
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_x_count; j++) {
             living_cells[i][j] = new_generation[i][j];
