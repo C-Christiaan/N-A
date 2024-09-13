@@ -1,4 +1,3 @@
-
 cell_width = 10;
 cell_x_count = 80;
 
@@ -19,6 +18,9 @@ last_mouse_cell_position = null;
 started = false;
 generation = 1;
 
+let living_cells_count = 0;
+let terrain_cells_count = 0;
+let lava_cells_count = 0;
 
 window.onload = function () {
     if (cell_x_count != this.parseInt(cell_x_count))
@@ -53,8 +55,6 @@ window.onload = function () {
     interval = setInterval(simulation, interval_timeout);
     document.getElementById("p_speed").innerHTML = "Speed = " + 1000 / interval_timeout + " generations per sec";
 }
-// ****************************************************
-
 
 function whichCell(x, y, canBeOnGridcell) {
     if (((x % cell_width >= cell_width - CELL_MARGIN || y % cell_width >= cell_width - CELL_MARGIN) && !canBeOnGridcell) ||
@@ -70,10 +70,8 @@ function whichCell(x, y, canBeOnGridcell) {
 }
 
 function pencilErase(evt) {
-
     x = parseInt(evt.offsetX);
     y = parseInt(evt.offsetY);
-
 
     if (last_mouse_cell_position != null)
         cell = whichCell(x, y, true);
@@ -103,7 +101,7 @@ function pencilErase(evt) {
     }
     last_mouse_cell_position = cell;
 }
-// ****************************************************
+
 function init_canvas() {
     canv = document.getElementById("canv");
     canv.width = cell_x_count * cell_width;
@@ -112,10 +110,28 @@ function init_canvas() {
     ctx = canv.getContext("2d");
     ctx.fillStyle = "#404040";
     ctx.fillRect(0, 0, canv.width, canv.height);
-    ctx.fillStyle = "black";
-    for (i = 0; i < cell_x_count; i++)
-        for (j = 0; j < cell_x_count; j++)
-            ctx.fillRect(i * cell_width, j * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
+
+    // Draw grid lines initially
+    drawGrid();
+}
+
+function drawGrid() {
+    ctx.strokeStyle = "#808080"; // Light gray color for grid lines
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= cell_x_count; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * cell_width, 0);
+        ctx.lineTo(i * cell_width, canv.height);
+        ctx.stroke();
+    }
+
+    for (let j = 0; j <= cell_x_count; j++) {
+        ctx.beginPath();
+        ctx.moveTo(0, j * cell_width);
+        ctx.lineTo(canv.width, j * cell_width);
+        ctx.stroke();
+    }
 }
 
 function init_simulation() {
@@ -123,7 +139,7 @@ function init_simulation() {
     new_generation = [];
     buffor_cells = [];
     buffor_cells_pointer = 0;
-    terrain_cells = [];  // Initialize the terrain_cells array
+    terrain_cells = [];
     lava_cells = [];
 
     buffor_cells.push([]);
@@ -131,32 +147,35 @@ function init_simulation() {
         living_cells.push([]);
         new_generation.push([]);
         buffor_cells[0].push([]);
-        terrain_cells.push([]);  // Initialize each row for terrain_cells
-        lava_cells.push([]);  // Initialize each row for terrain_cells
+        terrain_cells.push([]);
+        lava_cells.push([]);
 
         for (let j = 0; j < cell_x_count; j++) {
             living_cells[i].push(false);
             new_generation[i].push(false);
             buffor_cells[0][i].push(false);
-            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
-            terrain_cells[i].push(false);  // Initialize each cell in terrain_cells
-            lava_cells[i].push(false);  // Initialize each cell in terrain_cells
+            terrain_cells[i].push(false);
+            lava_cells[i].push(false);
         }
     }
-    placeTerrainCells(); // Call this to place terrain cells
+    placeTerrainCells();
     placeLavaCells();
+    updateCellCounts();
+    drawGeneration();
 }
 
 function placeTerrainCells() {
     const terrain_density_input = parseInt(document.getElementById("input_terrain_density").value);
-    const terrain_density = terrain_density_input / 1000;  // Scale to decimal
+    const terrain_density = terrain_density_input / 1000;
 
-
+    terrain_cells_count = 0;
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_x_count; j++) {
             if (Math.random() < terrain_density) {
                 terrain_cells[i][j] = true;
-                drawCell({ x: i, y: j }, "green"); // Draw terrain cells with a different color
+                terrain_cells_count++;
+            } else {
+                terrain_cells[i][j] = false;
             }
         }
     }
@@ -164,20 +183,21 @@ function placeTerrainCells() {
 
 function placeLavaCells() {
     const lava_density_input = parseInt(document.getElementById("input_lava_density").value);
-    const lava_density = lava_density_input / 1000;  // Scale to decimal
+    const lava_density = lava_density_input / 1000;
 
-
+    lava_cells_count = 0;
     for (let i = 0; i < cell_x_count; i++) {
         for (let j = 0; j < cell_x_count; j++) {
             if (Math.random() < lava_density) {
                 lava_cells[i][j] = true;
-                drawCell({ x: i, y: j }, "red"); // Draw terrain cells with a different color
+                lava_cells_count++;
+            } else {
+                lava_cells[i][j] = false;
             }
         }
     }
 }
 
-// *****************************************************
 function mouseMove(evt) {
     if (mouse_pushed == true)
         pencilErase(evt);
@@ -228,7 +248,7 @@ function keyDown(evt) {
     else if (evt.key == 'c')
         button_clear();
 }
-// ****************************************************
+
 function dimensionsFormChanged() {
     document.getElementById("a_w").innerHTML = parseInt(document.getElementById("input_x_cells").value * parseInt(document.getElementById("input_cell_width").value));
 }
@@ -244,10 +264,8 @@ function button_submit() {
         cell_x_count = cx;
         cell_width = cd;
         button_clear();
-
     }
 }
-
 
 function button_start() {
     started = true;
@@ -264,6 +282,9 @@ function button_start() {
     document.getElementById("button_start_stop").href = "javascript:button_stop();"
 
     document.getElementById("p_start_status").innerHTML = "Simulation started";
+
+    // Redraw the canvas without the grid
+    drawGeneration();
 }
 
 function button_stop() {
@@ -274,7 +295,6 @@ function button_stop() {
 
     document.getElementById("p_start_status").innerHTML = "Simulation stopped";
 }
-
 
 function button_backTo1Gen() {
     button_stop();
@@ -298,27 +318,48 @@ function button_clear() {
     init_canvas();
     init_simulation();
 }
+function drawGrid() {
+    ctx.strokeStyle = "#808080"; // Light gray color for grid lines
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= cell_x_count; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * cell_width, 0);
+        ctx.lineTo(i * cell_width, canv.height);
+        ctx.stroke();
+    }
+
+    for (let j = 0; j <= cell_x_count; j++) {
+        ctx.beginPath();
+        ctx.moveTo(0, j * cell_width);
+        ctx.lineTo(canv.width, j * cell_width);
+        ctx.stroke();
+    }
+}
 
 function drawGeneration() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canv.width, canv.height);
 
-    for (i = 0; i < cell_x_count; i++) {
-        for (j = 0; j < cell_x_count; j++) {
-            if (terrain_cells[i][j]) {
-                drawCell({ x: i, y: j }, "green"); // Draw terrain cells in green
-            } else if (living_cells[i][j]) {
-                drawCell({ x: i, y: j }, "white"); // Draw living cells in white
+    for (let i = 0; i < cell_x_count; i++) {
+        for (let j = 0; j < cell_x_count; j++) {
+            if (living_cells[i][j]) {
+                drawCell({ x: i, y: j }, "white");
+            } else if (terrain_cells[i][j]) {
+                drawCell({ x: i, y: j }, "green");
             } else if (lava_cells[i][j]) {
-                drawCell({ x: i, y: j }, "red"); // Draw lava cells in white
+                drawCell({ x: i, y: j }, "red");
             } else {
-                drawCell({ x: i, y: j }, "black"); // Draw dead cells in black
+                drawCell({ x: i, y: j }, "black");
             }
         }
     }
-}
-// ****************************************************ont
 
+    // Draw grid lines if the simulation is not started
+    if (!started) {
+        drawGrid();
+    }
+}
 
 function simulation() {
     if (started == false) return;
@@ -326,12 +367,13 @@ function simulation() {
     let living_neighborhood = 0;
     let terrain_neighborhood = 0;  // Add this variable
     let lava_neighborhood = 0; // Add this variable
+    living_cells_count = 0;
 
     for (let x = 0; x < cell_x_count; x++) {
         for (let y = 0; y < cell_x_count; y++) {
             living_neighborhood = 0;
-            terrain_neighborhood = 0;  // Reset for each cell
-            lava_neighborhood = 0; // Reset for each cell
+            terrain_neighborhood = 0;
+            lava_neighborhood = 0;
 
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
@@ -349,6 +391,7 @@ function simulation() {
 
             // Logic for living cells
             if (living_cells[x][y]) {
+                living_cells_count++;
                 if (lava_neighborhood > 0) {
                     // Living cells die if there is lava nearby
                     new_generation[x][y] = false;
@@ -378,11 +421,15 @@ function simulation() {
 
     generation++;
     document.getElementById("p_generation").innerHTML = "Generation = " + generation;
+    updateCellCounts();
     drawGeneration();
 }
 
-
-// ****************************************************
+function updateCellCounts() {
+    document.getElementById("p_living_cells").innerHTML = "Living Cells: " + living_cells_count;
+    document.getElementById("p_terrain_cells").innerHTML = "Terrain Cells: " + terrain_cells_count;
+    document.getElementById("p_lava_cells").innerHTML = "Lava Cells: " + lava_cells_count;
+}
 
 function makeCellsLine(prev_cell, cell) {
     var cells = [];
@@ -466,8 +513,6 @@ function killCells(cells) {
         living_cells[cells[i].x][cells[i].y] = false;
 }
 
-
-
 function createAndDrawCells(cells) {
     createCells(cells);
     for (i = 0; i < cells.length; i++)
@@ -480,8 +525,7 @@ function killAndDrawCells(cells) {
         drawCell(cells[i], "black");
 }
 
-function drawCell(cell, color) {
+function drawCell(position, color) {
     ctx.fillStyle = color;
-    ctx.fillRect(cell.x * cell_width, cell.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
+    ctx.fillRect(position.x * cell_width, position.y * cell_width, cell_width - CELL_MARGIN, cell_width - CELL_MARGIN);
 }
-// ****************************************************
