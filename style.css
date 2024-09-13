@@ -1,66 +1,107 @@
 body {
-    background-color: black;
-    color: white;
     font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #eee;
     margin: 0;
     padding: 0;
 }
-
-
-#div_parameters, #div_tools {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+label, input, a {
+    display: block;
+    margin: 10px 0;
 }
-
-#div_parameters label, #div_tools label {
-    margin-bottom: 5px;
+label {
+    font-size: 1.1em;
 }
-
-#div_parameters input, #div_tools input {
-    margin-bottom: 10px;
-}
-
-.button {
-    background-color: rgb(50, 50, 100);
-    color: white;
-    padding: 10px;
-    text-align: center;
-    text-decoration: none;
-    margin-top: 10px;
+input[type="number"] {
+    width: 80px;
+    padding: 5px;
+    border: 2px solid #444;
     border-radius: 5px;
-    cursor: pointer;
+    background-color: #333;
+    color: #eee;
 }
-
-.button:hover {
-    background-color: rgb(70, 70, 150);
+input[type="number"]::placeholder {
+    color: #666;
 }
-
+#speedSlider {
+    width: 200px;
+    margin-top: 10px;
+}
+#speedValue {
+    font-weight: bold;
+}
+a {
+    text-decoration: none;
+    color: #fff;
+    background-color: #555;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: 5px;
+    display: inline-block;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.3s;
+}
+a:hover {
+    background-color: #777;
+    transform: scale(1.05);
+}
+a:active {
+    background-color: #444;
+}
+#button_start_stop {
+    background-color: #0a0;
+}
+#button_start_stop:hover {
+    background-color: #080;
+}
+#button_start_stop:active {
+    background-color: #070;
+}
 #div_container {
     display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+#div_canvas {
+    display: block; /* Ensures it's treated as a block element */
     justify-content: center;
-    align-items: flex-start;
-    padding: 20px;
+    align-items: center;
+    border: 2px solid #444;
+    width: fit-content; /* Keeps the width wrapped around the content */
+    height: fit-content; /* Keeps the height wrapped around the content */
+    margin: 0 auto; /* Centers the element horizontally */
 }
 
-#div_canvas {
-    margin-right: 20px;
-    border: 1px solid lightgray;
-}
 
 #sidebar {
-    background-color: rgb(188, 188, 255);
+    flex: 1;
+    background-color: #333;
     padding: 20px;
     border-radius: 5px;
-    width: 200px;
-    color: rgb(27, 27, 66);
+    border: 2px solid #444;
     position: fixed;
+    width: 200px;
     top: 50%;
     right: 20px;
-    transform: translateY(-50%);
 }
 
 .p_simulation_informations {
     margin: 10px 0;
-    font-weight: bold;
+    font-size: 1em;
+    color: #ddd;
+}
+canvas {
+    background-color: #000;
+}
+
+#controls-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 20px; /* Adds space between each control group */
+}
+
+.control-group {
+    display: flex;
+    align-items: center; /* Vertically aligns the label and input */
+    gap: 10px; /* Adds space between the label and input */
 }
