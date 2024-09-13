@@ -84,13 +84,11 @@ function pencilErase(evt) {
         if (last_mouse_cell_position != null) {
             if (evt.buttons === 1) {
                 cells = makeCellsLine(last_mouse_cell_position, cell);
-                // Check if cells can be created and not on terrain or lava cells
                 cells = cells.filter(c => !living_cells[c.x][c.y] && !terrain_cells[c.x][c.y] && !lava_cells[c.x][c.y]);
                 createAndDrawCells(cells);
             }
             if (evt.buttons === 2) {
                 cells = makeCellsLine(last_mouse_cell_position, cell);
-                // Check if cells can be erased and not on terrain or lava cells
                 cells = cells.filter(c => living_cells[c.x][c.y] && !terrain_cells[c.x][c.y] && !lava_cells[c.x][c.y]);
                 killAndDrawCells(cells);
             }
